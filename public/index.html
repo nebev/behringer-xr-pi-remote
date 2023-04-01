@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script defer src="./js/alpine.min.js"></script>
+    <script defer src="./js/lodash.min.js"></script>
+    <title>In-Ear Mixing</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+</head>
+
+<body>
+    <div x-data>
+        <template x-if="!$store.userState.selectedBus">
+            <template x-if="Object.keys($store.mixerState.buses).length > 0">
+                <div class="bus-selection-container">
+                    <h1>Choose a Bus</h1>
+                    <div class="bus-selection">
+                        <template x-for="busNum in Object.keys($store.mixerState.buses)">
+                            <button x-on:click="$store.userState.selectedBus = busNum" x-text="'Bus ' + busNum"></button>
+                        </template>
+                    </div>
+                </div>
+            </template>
+            <template x-if="Object.keys($store.mixerState.buses).length === 0">
+                <h1>Waiting for Mixer</h1>
+            </template>
+
+        </template>
+
+
+
+        <template  x-if="$store.userState.selectedBus">
+        <div class="mixer">
+            <div class="titlebar">
+                <button x-on:click="$store.userState.selectedBus = null">Back</button>
+                <h1 x-text="'Bus ' + $store.userState.selectedBus"></h1>
+            </div>
+            <div class="channel-container">
+                <template x-for="channelNum in Object.keys($store.mixerState.channels)">
+                    <div class="channel">
+
+                        <p :class="{ 'channel-name': true, name: true, ['c'+$store.mixerState.channels[channelNum].color]: true }"
+                            x-text="$store.mixerState.channels[channelNum].name"></p>
+                        <div class="meter">
+                            <template x-if="$store.meters[channelNum] >= 0.05">
+                                <div class="meter-bar" :style="{ width: $store.meters[channelNum]*100 + '%' }"></div>
+                            </template>
+                        </div>
+                        <ul>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                            <li></li>
+                        </ul>
+                        <input class="slider" orient="vertical" type="range" min="0" max="1" step="0.01"
+                            x-model="$store.mixerState.buses[$store.userState.selectedBus].channels[channelNum].level"
+                            x-on:input.change="updateBusVolumeDB($store.userState.selectedBus, channelNum, $event.target.value)" />
+                        <h4 x-text="$store.mixerState.buses[$store.userState.selectedBus].channels[channelNum].level">
+                        </h4>
+                    </div>
+                </template>
+            </div>
+        </div>
+        </template>
+
+    </div>
+    <div class="fullscreen-container">
+        <a onClick="openFullscreen()" href="#">
+            <img src="./img/fullscreen.png" alt="fullscreen">
+        </a>
+    </div>
+
+
+
+    <script src="./js/mixer.js"></script>
+</body>
+
+</html>

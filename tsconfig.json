@@ -1,0 +1,33 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": "./",
+        "outDir": "./dist/",
+        "sourceMap": false,
+        "declaration": false,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "importHelpers": true,
+        "resolveJsonModule": true,
+        "target": "es2019",
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "lib": [
+            "es2020",
+            "dom"
+        ]
+    },
+    "include": [
+        "**/**.js",
+        "**/**.ts",
+        "**/**.json"
+    ],
+    "exclude": [
+        ".eslintrc.json"
+    ]
+}
