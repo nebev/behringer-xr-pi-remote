@@ -4,7 +4,7 @@
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "baseUrl": "./",
-        "outDir": "./dist/",
+        "outDir": "./build/",
         "sourceMap": false,
         "declaration": false,
         "module": "commonjs",
