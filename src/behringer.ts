@@ -16,7 +16,7 @@ export const mixerMap = {
         channels: 16,
         buses: 6,
     },
-    XR32: {
+    X32: {
         channels: 32,
         buses: 8,
     },

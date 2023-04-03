@@ -11,12 +11,19 @@ let config;
 
 logger.info(`Behringer Mixer Websocket Server`);
 
+const httpPort = process.env.PORT || 3000;
+let udpRemotePort = process.env.UDP_REMOTE_PORT || 10024;
+const udpLocalPort = process.env.UDP_LOCAL_PORT || 57121;
+
 // Search for some config files
 ['../config.json', `${os.homedir()}/behringer-remote.json`, `${os.homedir()}/.behringer-remote.json`].forEach((path) => {
     logger.debug(`Checking for config file at ${path}`);
     if (fs.existsSync(path)) {
         logger.info(`Found config file at ${path}`);
         config = require(path);
+        if (config.udpRemotePort) {
+            udpRemotePort = config.udpRemotePort;
+        }
     }
 });
 
@@ -29,6 +36,8 @@ if (!config) {
     logger.error('Invalid IP address');
     process.exit(1);
   }
+
+  udpRemotePort = prompt('Enter the port of your mixer (10024): ', 10024);
   config = {
     mixerIP: ipToValidate,
   };
@@ -46,11 +55,6 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
-
-const httpPort = process.env.PORT || 3000;
-const udpRemotePort = process.env.UDP_REMOTE_PORT || 10024;
-const udpLocalPort = process.env.UDP_LOCAL_PORT || 57121;
-
 
 const mixer = new BehingerMixer({
     mixerIP,
