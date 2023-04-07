@@ -46,6 +46,9 @@ h1 {
 .titlebar h1 {
     font-size: 1rem;
     text-align: center;
+    padding: 0px 20px;
+}
+.titlebar .spacer {
     flex: 1;
 }
 
@@ -95,22 +98,28 @@ h1 {
     height: 10px;
 }
 
-.channel-name.c0 { color: #EEE; background: black; }
-.channel-name.c1 { color: #000; background: #E72D2E; }
-.channel-name.c2 { color: #000; background: #35E72D; }
-.channel-name.c3 { color: #000; background: #FCF300; }
-.channel-name.c4 { color: #000; background: #0060FF; }
-.channel-name.c5 { color: #000; background: #ED27AC; }
-.channel-name.c6 { color: #000; background: #2DE0E7; }
-.channel-name.c7 { color: #000; background: #FFF; }
-.channel-name.c8 { color: #000; background: #808080; }
-.channel-name.c9 { color: #E72D2E; background: #000; border: 1px solid #E72D2E; }
-.channel-name.c10 { color: #35E72D; background: #000; border: 1px solid #35E72D; }
-.channel-name.c11 { color: #FCF300; background: #000; border: 1px solid #FCF300; }
-.channel-name.c12 { color: #0060FF; background: #000; border: 1px solid #0060FF; }
-.channel-name.c13 { color: #ED27AC; background: #000; border: 1px solid #ED27AC; }
-.channel-name.c14 { color: #2DE0E7; background: #000; border: 1px solid #2DE0E7; }
-.channel-name.c15 { color: #FFF; background: #000; border: 1px solid #FFF; }
+.channel .muted {
+    color: rgba(255, 0, 0, 0.884);
+    background: black;
+    border: 1px solid red;
+}
+
+.c0 { color: #EEE !important; background: black; }
+.c1 { color: #000 !important; background: #E72D2E; }
+.c2 { color: #000 !important; background: #35E72D; }
+.c3 { color: #000 !important; background: #FCF300; }
+.c4 { color: #000 !important; background: #0060FF; }
+.c5 { color: #000 !important; background: #ED27AC; }
+.c6 { color: #000 !important; background: #2DE0E7; }
+.c7 { color: #000 !important; background: #FFF; }
+.c8 { color: #000 !important; background: #808080; }
+.c9 { color: #E72D2E !important; background: #000; border: 1px solid #E72D2E; }
+.c10 { color: #35E72D !important; background: #000; border: 1px solid #35E72D; }
+.c11 { color: #FCF300 !important; background: #000; border: 1px solid #FCF300; }
+.c12 { color: #0060FF !important; background: #000; border: 1px solid #0060FF; }
+.c13 { color: #ED27AC !important; background: #000; border: 1px solid #ED27AC; }
+.c14 { color: #2DE0E7 !important; background: #000; border: 1px solid #2DE0E7; }
+.c15 { color: #FFF !important; background: #000; border: 1px solid #FFF; }
 
 
 .channel p {
@@ -198,6 +207,7 @@ input[type='range'].slider::-webkit-slider-thumb {
 .bus-selection button {
     width: 250px;
     height: 30px;
+    font-weight: bold;
 }
 
 .fullscreen-container {

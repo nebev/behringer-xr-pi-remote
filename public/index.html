@@ -18,7 +18,11 @@
                     <h1>Choose a Bus</h1>
                     <div class="bus-selection">
                         <template x-for="busNum in Object.keys($store.mixerState.buses)">
-                            <button x-on:click="$store.userState.selectedBus = busNum" x-text="'Bus ' + busNum"></button>
+                            <button
+                                x-on:click="$store.userState.selectedBus = busNum"
+                                x-text="$store.mixerState.buses[busNum].name || 'Bus ' + busNum"
+                                :class="{ ['c'+$store.mixerState.buses[busNum].color]: true }"
+                            ></button>
                         </template>
                     </div>
                 </div>
@@ -31,18 +35,23 @@
 
 
 
-        <template  x-if="$store.userState.selectedBus">
+        <template  x-if="$store.userState.selectedBus && $store.mixerState.buses[$store.userState.selectedBus]">
         <div class="mixer">
             <div class="titlebar">
                 <button x-on:click="$store.userState.selectedBus = null">Back</button>
-                <h1 x-text="'Bus ' + $store.userState.selectedBus"></h1>
+                <div class="spacer"></div>
+                <h1
+                    x-text="$store.mixerState.buses[$store.userState.selectedBus].name || 'Bus ' + $store.userState.selectedBus"
+                    :class="{ ['c'+$store.mixerState.buses[$store.userState.selectedBus].color]: true }"
+                ></h1>
+                <div class="spacer"></div>
             </div>
             <div class="channel-container">
                 <template x-for="channelNum in Object.keys($store.mixerState.channels)">
                     <div class="channel">
 
                         <p :class="{ 'channel-name': true, name: true, ['c'+$store.mixerState.channels[channelNum].color]: true }"
-                            x-text="$store.mixerState.channels[channelNum].name"></p>
+                            x-text="$store.mixerState.channels[channelNum].name || 'Ch ' + channelNum"></p>
                         <div class="meter">
                             <template x-if="$store.meters[channelNum] >= 0.05">
                                 <div class="meter-bar" :style="{ width: $store.meters[channelNum]*100 + '%' }"></div>
@@ -63,10 +72,16 @@
                             <li></li>
                             <li></li>
                         </ul>
+                        <pre x-text="JSON.stringify($store.mixerState.channels[channelNum])"></pre>
                         <input class="slider" orient="vertical" type="range" min="0" max="1" step="0.01"
                             x-model="$store.mixerState.buses[$store.userState.selectedBus].channels[channelNum].level"
                             x-on:input.change="updateBusVolumeDB($store.userState.selectedBus, channelNum, $event.target.value)" />
-                        <h4 x-text="$store.mixerState.buses[$store.userState.selectedBus].channels[channelNum].level">
+                        <template x-if="$store.mixerState.channels[channelNum].on === false">
+                            <h4 class="muted">Muted</h4>
+                        </template>
+                        <template x-if="$store.mixerState.channels[channelNum].on !== false">
+                            <h4 x-text="$store.mixerState.buses[$store.userState.selectedBus].channels[channelNum].level"></h4>
+                        </template>
                         </h4>
                     </div>
                 </template>

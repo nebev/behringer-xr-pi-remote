@@ -96,6 +96,19 @@ export class BehingerMixer {
             const channel = i.toString().padStart(2, '0');
             this.udpPort.send({ address: `/ch/${channel}/config/name` });
             this.udpPort.send({ address: `/ch/${channel}/config/color` });
+            this.udpPort.send({ address: `/ch/${channel}/mix/on` });
+        }
+    }
+
+    /**
+     * Requests bus names & colors from the mixer
+     */
+    public requestBusNames() {
+        logger.debug('Requesting Bus Names');
+        for (let i = 1; i <= mixerMap[this.mixerKey].buses; i++) {
+            const bus = i.toString().padStart(2, '0');
+            this.udpPort.send({ address: `/bus/${bus}/config/name` });
+            this.udpPort.send({ address: `/bus/${bus}/config/color` });
         }
     }
 
@@ -140,19 +153,30 @@ export class BehingerMixer {
             logger.info(`Connected to ${this.mixerKey} Mixer`);
             this.requestChannelNames();
             this.requestBusLevels(null);
+            this.requestBusNames();
         } else if (aps[1] === 'ch' && aps[4] === 'name') {
             const channelName = parseInt(address.split('/')[2], 10);
             set(this.mixerState, `channels.${channelName}.name`, args[0]);
-        } else if (aps[1] == 'ch' && aps[4] == 'color') {
+        } else if (aps[1] === 'bus' && aps[4] === 'name') {
+            const busName = parseInt(address.split('/')[2], 10);
+            set(this.mixerState, `buses.${busName}.name`, args[0]);
+        } else if (aps[1] === 'ch' && aps[4] == 'color') {
             const channelName = parseInt(aps[2], 10);
             set(this.mixerState, `channels.${channelName}.color`, args[0]);
-        } else if (aps[1] == 'ch' && aps[3] == 'mix' && aps[5] == 'level') {
+        } else if (aps[1] === 'bus' && aps[4] == 'color') {
+            const busName = parseInt(aps[2], 10);
+            set(this.mixerState, `buses.${busName}.color`, args[0]);
+            this.eventEmitter.emit('mixerState', this.mixerState);
+        } else if (aps[1] === 'ch' && aps[3] == 'mix' && aps[5] == 'level') {
             const channelName = parseInt(aps[2], 10);
             const busName = parseInt(aps[4], 10);
             set(this.mixerState, `buses.${busName}.channels.${channelName}.level`, Math.floor(args[0] * 100) / 100);
             this.eventEmitter.emit('mixerState', this.mixerState);
         } else if (aps[1] === 'meters' && aps[2] === '1') {
             this.eventEmitter.emit('meters', this.processMeter1Packet(args[0]));
+        } else if (aps[1] === 'ch' && aps[4] === 'on') {
+            const channelName = parseInt(aps[2], 10);
+            set(this.mixerState, `channels.${channelName}.on`, args[0] === 1);
         } else {
             logger.debug(aps);
         }
@@ -269,10 +293,13 @@ export interface IMixerState {
         [key: number]: {
             name?: string;
             color?: string;
+            on?: boolean;
         };
     };
     buses: {
         [key: number]: {
+            name?: string;
+            color?: string;
             channels: {
                 [key: number]: {
                     level: number;

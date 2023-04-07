@@ -7,6 +7,9 @@ This is a websockets based remote control for behringer buses. Suitable for IEM 
 In short, it allows performers to tweak their own mix on their dedicated AUX/BUS using nothing more than a phone. They don't need to install anything, and the sound engineer doesn't need to worry about accidentally giving them too much access to say front-of-house speakers.
 
 ![Example](https://github.com/nebev/behringer-xr-pi-remote/blob/master/docs/example.png?raw=true)
+![Example](https://github.com/nebev/behringer-xr-pi-remote/blob/master/docs/example-2.png?raw=true)
+![Bus Overview](https://github.com/nebev/behringer-xr-pi-remote/blob/master/docs/bus-overview.png?raw=true)
+
 
 While in theory this should work on XR12/XR16/XR18/X32, I only have an XR18. Your mileage may vary.
 

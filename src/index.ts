@@ -108,8 +108,17 @@ setInterval(async () => {
     const sockets = await io.fetchSockets();
     if (sockets.length > 0) {
         mixer.subscribeToMeters();
+        mixer.requestChannelNames(); // Channel names and mute status change every so often
     }
 }, 10000);
+
+// Every 125 seconds, check if there are any sockets connected. If so, we want to refresh bus information
+setInterval(async () => {
+    const sockets = await io.fetchSockets();
+    if (sockets.length > 0) {
+        mixer.requestBusNames();
+    }
+}, 125000);
 
 
 server.listen(httpPort, () => {
@@ -122,3 +131,16 @@ server.listen(httpPort, () => {
 
 });
 
+process.on('uncaughtException', (err) => {
+  logger.error('Unhandled Exception. This application cannot recover and will exit in 5 seconds:', err);
+  setTimeout(() => {
+    process.exit(1);
+  }, 5000);
+});
+
+process.on('unhandledRejection', (err) => {
+  logger.error('Unhandled rejection. This application cannot recover and will exit in 5 seconds:', err);
+  setTimeout(() => {
+    process.exit(1);
+  }, 5000);
+});

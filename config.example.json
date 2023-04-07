@@ -1,3 +1,4 @@
 {
-    "mixerIP": "192.168.20.76"
+    "mixerIP": "172.25.80.1",
+    "udpRemotePort": 10023
 }
