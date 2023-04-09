@@ -71,7 +71,10 @@ export class BehingerMixer {
         setTimeout(() => {
             if (!this.mixerKey) {
                 logger.error(`Mixer not found at ${this.mixerIP} (Port ${this.udpRemotePort})`);
-                process.exit(1);
+                logger.error(`Exiting in 5 seconds...`);
+                setTimeout(() => {
+                    process.exit(1);
+                }, 5000);
             }
         }, 20000);
     }
@@ -92,6 +95,7 @@ export class BehingerMixer {
      */
     public requestChannelNames() {
         logger.debug('Requesting Channel Names');
+        if (!this.mixerKey) { return; }
         for (let i = 1; i <= mixerMap[this.mixerKey].channels; i++) {
             const channel = i.toString().padStart(2, '0');
             this.udpPort.send({ address: `/ch/${channel}/config/name` });
@@ -109,6 +113,14 @@ export class BehingerMixer {
             const bus = i.toString().padStart(2, '0');
             this.udpPort.send({ address: `/bus/${bus}/config/name` });
             this.udpPort.send({ address: `/bus/${bus}/config/color` });
+            // Set a default in case these never resolve
+            if (!this.mixerState.buses[i]) {
+                this.mixerState.buses[i] = {
+                    name: null,
+                    color: null,
+                    channels: {},
+                };
+            }
         }
     }
 
@@ -117,6 +129,7 @@ export class BehingerMixer {
      * @param buses Array of bus numbers to request. Leave NULL for All buses
      */
     public requestBusLevels(buses: number[]) {
+        if (!this.mixerKey) { return; }
         if (!buses) { buses = Array.from(Array(mixerMap[this.mixerKey].buses).keys()).map(a => a + 1); }
         buses.forEach((bus: any) => {
             for (let i = 1; i <= mixerMap[this.mixerKey].channels; i++) {

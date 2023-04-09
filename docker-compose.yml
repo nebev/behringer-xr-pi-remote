@@ -1,0 +1,32 @@
+version: '3'
+services:
+  behringer_remote:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+      - '3000:3000'
+    volumes:
+      - './config.json:/root/behringer-remote.json'
+    environment:
+      NODE_ENV: production
+      LOGGER_LEVEL: debug
+      IS_DOCKER: "1"
+  # behringer_remote_dev:
+  #   restart: always
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: dev
+  #   ports:
+  #     - '3000:3000'
+  #   volumes:
+  #     - './config.json:/root/behringer-remote.json'
+  #     - './:/behringer-remote'
+  #     - '/behringer-remote/node_modules'
+  #   environment:
+  #     NODE_ENV: production
+  #     LOGGER_LEVEL: debug
+  #     IS_DOCKER: "1"

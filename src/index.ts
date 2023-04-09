@@ -43,10 +43,6 @@ if (!config) {
   };
 }
 
-// Get Public directory listing
-const publicDir = fs.readdirSync('./public');
-logger.debug(`Public directory listing:`, publicDir);
-
 const mixerIP = config.mixerIP;
 
 const express = require('express');
@@ -124,10 +120,16 @@ setInterval(async () => {
 server.listen(httpPort, () => {
   logger.info(`Spawned HTTP server on port ${httpPort}`);
   const availableUris = Object.values(networkInterfaces)
-    .flat().filter((iface: any) => iface.family === 'IPv4')
+    .flat()
+    .filter((iface: any) => iface.family === 'IPv4')
+    .filter((iface: any) => iface.address !== '127.0.0.1')
     .map((iface: any) => `http://${iface.address}:3000`);
   logger.warn(`Access this application via browser at: \n${availableUris.join(' OR \n')}`);
-  qrcode.generate(availableUris[0]);
+  if (process.env.IS_DOCKER === '1') {
+    logger.warn('This application is running in a Docker container. You will need to forward the port to your host machine.');
+  } else {
+    qrcode.generate(availableUris[0]);
+  }
 
 });
 

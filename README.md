@@ -71,6 +71,19 @@ The application will tell you where you can access it via a set of URLs. It will
 
 If you don't want to manually enter the IP address of the mixer every time, you can take a look at the `config.example.json` file in this directory and move it to your home directory and call it `behringer-remote.json`
 
+### Running using Docker
+
+* Clone this repository
+* Install [docker-compose](https://github.com/docker/compose) for your operating system
+* Change directory to this repository
+* Create a `config.json` file at the root of the directory with contents similar to the provided `config.example.json`
+  * This contains your mixer's IP and Port, since you won't have an keyboard available to put in this information
+* Run `docker-compose up -d`
+
+You can view logs of the process by running `docker-compose logs -f` (Ctrl-C will detach)
+
+The container is set to restart automatically upon crash and on system restart. If the mixer IP is unavailable it should (in theory) crash, then restart.
+
 ### Firewall
 
 If your machine asks about a firewall, it's crucial that you _allow_ the machine to receive connections. If you don't allow this, your devices will not be able to connect to it.
