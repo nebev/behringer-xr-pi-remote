@@ -12,14 +12,14 @@
 
 <body>
     <div x-data>
-        <template x-if="!$store.userState.selectedBus">
+        <template x-if="!$store.shownBus.channels">
             <template x-if="Object.keys($store.mixerState.buses).length > 0">
                 <div class="bus-selection-container">
                     <h1>Choose a Bus</h1>
                     <div class="bus-selection">
                         <template x-for="busNum in Object.keys($store.mixerState.buses)">
                             <button
-                                x-on:click="$store.userState.selectedBus = busNum"
+                                x-on:click="selectBus(busNum)"
                                 x-text="$store.mixerState.buses[busNum].name || 'Bus ' + busNum"
                                 :class="{ ['c'+$store.mixerState.buses[busNum].color]: true }"
                             ></button>
@@ -35,10 +35,10 @@
 
 
 
-        <template  x-if="$store.userState.selectedBus && $store.mixerState.buses[$store.userState.selectedBus]">
+        <template  x-if="$store.shownBus.channels">
         <div class="mixer">
             <div class="titlebar">
-                <button x-on:click="$store.userState.selectedBus = null">Back</button>
+                <button x-on:click="resetBus()">Back</button>
                 <div class="spacer"></div>
                 <h1
                     x-text="$store.mixerState.buses[$store.userState.selectedBus].name || 'Bus ' + $store.userState.selectedBus"

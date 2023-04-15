@@ -93,26 +93,37 @@ export class BehingerMixer {
     /**
      * Request channel names & colors from the mixer
      */
-    public requestChannelNames() {
+    public async requestChannelNames() {
         logger.debug('Requesting Channel Names');
         if (!this.mixerKey) { return; }
         for (let i = 1; i <= mixerMap[this.mixerKey].channels; i++) {
             const channel = i.toString().padStart(2, '0');
-            this.udpPort.send({ address: `/ch/${channel}/config/name` });
-            this.udpPort.send({ address: `/ch/${channel}/config/color` });
+            if (this.mixerKey === 'X32') {
+                this.udpPort.send({ address: `/ch/${channel}/config/name` });
+                this.udpPort.send({ address: `/ch/${channel}/config/color` });
+            } else {
+                this.udpPort.send({ address: `/ch/${channel}/config` });
+            }
+            
             this.udpPort.send({ address: `/ch/${channel}/mix/on` });
+            await this.pause(100);
         }
     }
 
     /**
      * Requests bus names & colors from the mixer
      */
-    public requestBusNames() {
+    public async requestBusNames() {
         logger.debug('Requesting Bus Names');
         for (let i = 1; i <= mixerMap[this.mixerKey].buses; i++) {
-            const bus = i.toString().padStart(2, '0');
-            this.udpPort.send({ address: `/bus/${bus}/config/name` });
-            this.udpPort.send({ address: `/bus/${bus}/config/color` });
+            if (this.mixerKey === 'X32') {
+                const bus = i.toString().padStart(2, '0');
+                this.udpPort.send({ address: `/bus/${bus}/config/name` });
+                this.udpPort.send({ address: `/bus/${bus}/config/color` });
+            } else {
+                this.udpPort.send({ address: `/bus/${i}/config` }); // XR18 only responds to this, and the bus doesn't have a 0 prefix
+            }
+
             // Set a default in case these never resolve
             if (!this.mixerState.buses[i]) {
                 this.mixerState.buses[i] = {
@@ -121,6 +132,7 @@ export class BehingerMixer {
                     channels: {},
                 };
             }
+            await this.pause(100);
         }
     }
 
@@ -159,6 +171,9 @@ export class BehingerMixer {
     protected processUdpMessage(oscMessage) {
         const { address, args } = oscMessage;
         const aps = address.split('/');
+        if (aps[1] !== 'meters') {
+            logger.silly(`Received OSC Message:`, address, args);
+        }
 
         if (aps[1] === 'info') {
             this.mixerKey = args[2] as MixerModel;
@@ -173,12 +188,20 @@ export class BehingerMixer {
         } else if (aps[1] === 'bus' && aps[4] === 'name') {
             const busName = parseInt(address.split('/')[2], 10);
             set(this.mixerState, `buses.${busName}.name`, args[0]);
+        } else if (aps[1] === 'bus' && aps[3] === 'config' && !aps[4]) {
+            const busName = parseInt(address.split('/')[2], 10);
+            set(this.mixerState, `buses.${busName}.name`, args[0]);
+            set(this.mixerState, `buses.${busName}.color`, this.normaliseColor(args[1]));
+        } else if (aps[1] === 'ch' && aps[3] === 'config' && !aps[4]) {
+            const channelName = parseInt(address.split('/')[2], 10);
+            set(this.mixerState, `channels.${channelName}.name`, args[0]);
+            set(this.mixerState, `channels.${channelName}.color`, this.normaliseColor(args[1]));
         } else if (aps[1] === 'ch' && aps[4] == 'color') {
             const channelName = parseInt(aps[2], 10);
-            set(this.mixerState, `channels.${channelName}.color`, args[0]);
+            set(this.mixerState, `channels.${channelName}.color`, this.normaliseColor(args[0]));
         } else if (aps[1] === 'bus' && aps[4] == 'color') {
             const busName = parseInt(aps[2], 10);
-            set(this.mixerState, `buses.${busName}.color`, args[0]);
+            set(this.mixerState, `buses.${busName}.color`, this.normaliseColor(args[0]));
             this.eventEmitter.emit('mixerState', this.mixerState);
         } else if (aps[1] === 'ch' && aps[3] == 'mix' && aps[5] == 'level') {
             const channelName = parseInt(aps[2], 10);
@@ -295,10 +318,26 @@ export class BehingerMixer {
         });
         return levels;
     }
+
+    protected async pause(pauseMs: number) {
+        return new Promise(resolve => setTimeout(resolve, pauseMs));
+    }
+
+    protected normaliseColor(sourceColor: number) {
+        // The X32 colors are offset by 8
+        if (this.mixerKey === 'X32') {
+            if (sourceColor > 7) {
+                return sourceColor - 8;
+            }
+            return sourceColor + 8;
+        }
+        return sourceColor;
+    }
+
 }
 
 
-export type MixerModel = 'XR12' | 'XR16' | 'XR18' | 'XR32';
+export type MixerModel = 'XR12' | 'XR16' | 'XR18' | 'X32';
 
 export interface IMixerState {
     model: MixerModel;

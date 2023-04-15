@@ -6,12 +6,13 @@ let MixerState = {
 const UserState = {
     selectedBus: null,
 };
-
+let ShownBus = {};
 
 
 document.addEventListener('alpine:init', () => {
     Alpine.store('mixerState', MixerState);
     Alpine.store('userState', UserState);
+    Alpine.store('shownBus', ShownBus);
 
     socket = io();
     console.log('Enabling sockets');
@@ -19,6 +20,10 @@ document.addEventListener('alpine:init', () => {
         console.log('Mixer State: ', mixerState);
         MixerState = mixerState;
         Alpine.store('mixerState', MixerState);
+        if (UserState.selectedBus) {
+            ShownBus = MixerState.buses[UserState.selectedBus];
+            Alpine.store('shownBus', ShownBus);
+        }
     });
     socket.on('meters', (meters) => {
         Alpine.store('meters', meters);
@@ -76,6 +81,21 @@ function updateBusVolumeDB(bus, channel, volume) {
     updateBusVolumeValue = { bus, channel, volume };
     sendBusVolumeChange(); // Debounced
 }
+
+function selectBus(busNumber) {
+    UserState.selectedBus = busNumber;
+    ShownBus = MixerState.buses[busNumber];
+    Alpine.store('userState', UserState);
+    Alpine.store('shownBus', ShownBus);
+}
+
+function resetBus() {
+    UserState.selectedBus = null;
+    ShownBus = {};
+    Alpine.store('userState', UserState);
+    Alpine.store('shownBus', ShownBus);
+}
+
 
 setInterval(() => {
     if (!document.hidden && socket && UserState.selectedBus && !updateBusVolumeValue) {
